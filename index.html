@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leilão - Informações do Licitante</title>
+<style>
+  #lancesDados {
+    position: fixed;
+    top: 0;
+    right: 0;
+    padding: 10px;
+    background-color: #f1f1f1;
+    border: 1px solid #ddd;
+    width: 250px;
+    height: 100%;
+    overflow-y: auto;
+  }
+</style>
+</head>
+<body>
+
+<h1>Informações do Licitante</h1>
+
+<form id="informacoesLicitante">
+  <label for="nomeCompleto">Nome Completo:</label>
+  <input type="text" id="nomeCompleto" required><br><br>
+  <label for="instagram">Instagram:</label>
+  <input type="text" id="instagram" required><br><br>
+  <button id="participarLeilao">Participar do Leilão</button>
+</form>
+
+<div id="leilao" style="display: none;">
+  <h2>Leilão - Dê seu Lance</h2>
+  <p>Lance mais alto: <span id="lanceMaisAlto">R$ 0,00</span></p>
+  <p>Seu lance: <input type="text" id="seuLance"></p>
+  <button onclick="darLance()">Dar Lance</button>
+</div>
+
+<div id="lancesDados"></div>
+
+<script>
+document.getElementById('participarLeilao').addEventListener('click', function(event) {
+  event.preventDefault(); // Evitar que o formulário seja enviado
+  exibirPaginaLance();
+});
+
+function exibirPaginaLance() {
+  const nomeCompleto = document.getElementById("nomeCompleto").value;
+  const instagram = document.getElementById("instagram").value;
+
+  // Armazenar as informações do licitante em localStorage para uso posterior
+  localStorage.setItem("nomeCompleto", nomeCompleto);
+  localStorage.setItem("instagram", instagram);
+
+  // Exibir a seção do leilão
+  document.getElementById("informacoesLicitante").style.display = "none";
+  document.getElementById("leilao").style.display = "block";
+}
+
+let lances = []; // Array para armazenar os lances dados
+let lanceMaisAlto = 0;
+
+function darLance() {
+  const seuLance = parseFloat(document.getElementById("seuLance").value);
+  if (!isNaN(seuLance)) {
+    if (seuLance >= lanceMaisAlto) {
+      const instagram = localStorage.getItem("instagram"); // Obter o Instagram do licitante
+      const novoLance = { lance: seuLance, instagram: instagram }; // Criar objeto com o lance e o Instagram
+      lances.push(novoLance); // Adicionar o lance ao array de lances
+
+      // Ordenar o array de lances em ordem decrescente
+      lances.sort((a, b) => b.lance - a.lance);
+
+      // Atualizar o maior lance
+      lanceMaisAlto = lances[0].lance;
+
+      // Atualizar a exibição dos lances
+      mostrarLances();
+
+      document.getElementById("lanceMaisAlto").innerText = "R$ " + lanceMaisAlto.toFixed(2);
+      alert("Seu lance foi dado com sucesso!");
+    } else {
+      alert("Seu lance precisa ser maior ou igual ao lance atual.");
+    }
+  } else {
+    alert("Por favor, insira um valor válido para o lance.");
+  }
+}
+
+function mostrarLances() {
+  const lancesDados = document.getElementById("lancesDados");
+  lancesDados.innerHTML = ""; // Limpar os lances exibidos
+
+  // Adicionar cada lance à lista de lances
+  lances.forEach(lance => {
+    const novoLance = document.createElement("p");
+    novoLance.textContent = "Lance: R$ " + lance.lance.toFixed(2) + " - Instagram: " + lance.instagram;
+    lancesDados.appendChild(novoLance);
+  });
+}
+</script>
+
+</body>
+</html>
